@@ -1,56 +1,82 @@
-// all the juice
+// dependencies
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const database = require('./db/db.json')
 
 // helper method for generating unique ids
 const uuid = require('./helpers/uuid');
-// const db = require('./db/db.json');
-const { response } = require('express');
 
-// port used when deployed || locally
+// Gives the express juice
+const app = express();
+// Port used when deployed || locally
 const PORT = process.env.PORT || 3001;
 
-const app = express();
 
 // calling middleware 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static('public'));
 // ? ^^ what does this do?
 
-// return notes.html file
-// return all info w GET *
+// On page load, index.html
 app.get('/', (req, res) =>
-    res.sendFile('/public/index.html'));
+    res.sendFile(path.join(__dirname, '/public/index.html')));
 
-
-// API routes:
-// GET/api/notes should read the db.json and return all saved notes as JSON
-app.get('/api/notes', (req, res) => {
+// Path to notes.html
+app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, '/public/notes.html'))
 });
 
+// API routes:
+// Gets notes list from db file
+app.get('/api/notes', (req, res) => {
+    res.json(database);
+})
 
-//       POST / api/notes should receive new note to save on the request body, add to the db.json file, and return the new route to the client 
-//      each note must have a unique id when its saved (look for npm package that could do this for me)
+// Add new note to list
+app.post('/api/notes', (req, res) => {
+    let jsonFilePath = path.join(__dirname, '/db/db.json');
+    const { title, text } = req.body;
 
-app.post('api/notes', (req, res) => {
-    let db = fs.readFile('./db/db.json');
-    db = JSON.parse(db);
-    res.json(db);
+    if (title && text) {
+        const newNote = {
+            title,
+            text,
+            note_id: uuid(),
+        };
+        // Obtain existing notes
+        fs.readFile('./db/db.json', 'utf8', (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                // Convert string into JSON object
+                const parsedNotes = JSON.parse(data);
 
-    let newNote = {
-        title: req.body.title, 
-        text: req.body.text,
-        id: uuid(),
+                // Add new note
+                parsedNotes.push(newNote);
+
+                // Write updated notes list back to db file
+                fs.writeFile('./db/db.json', JSON.stringify(parsedNotes, null, 4), (writeErr) =>
+                writeErr
+                ? console.error(writeErr)
+                : console.info('Successfully saved note!')
+                );
+            }
+        });
+      const response = {
+        status: 'success!',
+        body: newNote,
+      };
+
+      console.log(response);
+      res.status(201).json(response);
+    } else {
+        res.status(500).json('Error in saving note');
     }
-
-    db.push(newNote);
-    fs.writeFile('/db/db.json', JSON.stringify(db));
-    res.json(db);
 });
+
+// return all info w GET *
 
 app.listen(PORT, () =>
     console.log(`App listening at http://localhost:${PORT} 🚀`)

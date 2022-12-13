@@ -1,3 +1,3 @@
 // deals w info from index.html
-
-//  const path .Router()
+const path = require('path');
+const fs = require('fs');
