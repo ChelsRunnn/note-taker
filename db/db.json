@@ -1,21 +1,7 @@
 [
     {
-        "title": "Test Title",
-        "text": "Test text"
-    },
-    {
-        "title": "Laundry",
-        "text": "bed sheets, clothes ",
-        "note_id": "dc16"
-    },
-    {
         "title": "Groceries:",
         "text": "half n half\neggs\nbread\nchicken\nyogurt",
         "note_id": "79ef"
-    },
-    {
-        "title": "HW",
-        "text": "module 11 due 12/13 @ midnight",
-        "note_id": "b2c4"
     }
 ]
