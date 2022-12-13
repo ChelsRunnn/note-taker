@@ -77,6 +77,7 @@ app.post('/api/notes', (req, res) => {
 });
 
 // return all info w GET *
+// ?? ^^ how to do this without messing everything up
 
 app.listen(PORT, () =>
     console.log(`App listening at http://localhost:${PORT} 🚀`)
